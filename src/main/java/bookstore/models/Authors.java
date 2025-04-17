@@ -1,15 +1,15 @@
 package bookstore.models;
 
-public class Author {
+public class Authors {
     private int id;
     private String name;
 
-    private String bookName;
+    private String biography;
 
-    public Author(int id, String name, String bookName) {
+    public Authors(int id, String name, String biography) {
         this.id = id;
         this.name = name;
-        this.bookName = bookName;
+        this.biography = biography;
     }
 
     public int getId() {
@@ -28,11 +28,11 @@ public class Author {
         this.name = name;
     }
 
-    public String getBookName() {
-        return bookName;
+    public String getBiography() {
+        return biography;
     }
 
-    public void setBookName(String bookName) {
-        this.bookName = bookName;
+    public void setBiography(String biography) {
+        this.biography = biography;
     }
 }

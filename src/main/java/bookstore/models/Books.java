@@ -4,16 +4,22 @@ public class Books {
     private int id;
     private String title;
     private String author;
+    private String isbn;
+    private int publicationYear;
     private double price;
+    private int stockQuantity;
 
-
-    public Books(int id, String title, String author , double price){
-        this.id=id;
-        this.title=title;
-        this.author=author;
+    public Books(int id, String title, String author, String isbn, int publicationYear, double price, int stockQuantity) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.isbn = isbn;
+        this.publicationYear = publicationYear;
         this.price = price;
-
+        this.stockQuantity = stockQuantity;
     }
+
+    // Getters & Setters
     public int getId() {
         return id;
     }
@@ -38,11 +44,35 @@ public class Books {
         this.author = author;
     }
 
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public int getPublicationYear() {
+        return publicationYear;
+    }
+
+    public void setPublicationYear(int publicationYear) {
+        this.publicationYear = publicationYear;
+    }
+
     public double getPrice() {
         return price;
     }
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public int getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 }
