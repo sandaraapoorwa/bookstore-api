@@ -1,4 +1,6 @@
 package bookstore.exceptions;
 
-public class InvalidInputException {
+public class InvalidInputException extends Throwable {
+    public InvalidInputException(String authorNameIsRequired) {
+    }
 }
