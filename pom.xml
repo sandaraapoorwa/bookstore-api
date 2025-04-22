@@ -14,7 +14,6 @@
     </properties>
 
     <dependencies>
-        <!-- Jersey -->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>

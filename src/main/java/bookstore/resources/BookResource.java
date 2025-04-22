@@ -6,7 +6,6 @@ import bookstore.models.Books;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
 import java.util.ArrayList;
 import java.util.List;
 
