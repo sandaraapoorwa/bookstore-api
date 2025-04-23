@@ -7,24 +7,18 @@ import bookstore.exceptions.OutOfStockException;
 import bookstore.models.Books;
 import bookstore.models.Cart;
 import bookstore.models.CartItem;
+import bookstore.service.DataStore;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Path("/customers/{customerId}/cart")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CartResource {
-    private static List<Cart> cartList = new ArrayList<>();
-    private static List<Books> bookList = new ArrayList<>();
-
-    static {
-        bookList.add(new Books(1, "The Alchemist", 1, "9780061122415", 1988, 9.99, 20));
-        bookList.add(new Books(2, "1984", 2, "9780451524935", 1949, 8.99, 15));
-    }
+    private static List<Cart> cartList = DataStore.getCartList();
+    private static List<Books> bookList = DataStore.getBookList();
 
     @GET
     public Response getCart(@PathParam("customerId") int customerId) {

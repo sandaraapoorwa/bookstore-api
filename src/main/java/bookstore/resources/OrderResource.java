@@ -8,10 +8,10 @@ import bookstore.models.Books;
 import bookstore.models.Cart;
 import bookstore.models.CartItem;
 import bookstore.models.Order;
+import bookstore.service.DataStore;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,15 +21,9 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class OrderResource {
-    private static List<Order> orderList = new ArrayList<>();
-    private static List<Cart> cartList = new ArrayList<>();
-    private static List<Books> bookList = new ArrayList<>();
-    private static int currentOrderId = 1;
-
-    static {
-        bookList.add(new Books(1, "The Alchemist", 1, "9780061122415", 1988, 9.99, 20));
-        bookList.add(new Books(2, "1984", 2, "9780451524935", 1949, 8.99, 15));
-    }
+    private static List<Order> orderList = DataStore.getOrderList();
+    private static List<Cart> cartList = DataStore.getCartList();
+    private static List<Books> bookList = DataStore.getBookList();
 
     @POST
     public Response createOrder(@PathParam("customerId") int customerId) throws InvalidInputException {
@@ -61,7 +55,7 @@ public class OrderResource {
             book.setStockQuantity(book.getStockQuantity() - item.getQuantity());
         }
 
-        Order order = new Order(currentOrderId++, customerId, new ArrayList<>(cart.getItems()), totalAmount, new Date());
+        Order order = new Order(DataStore.getNextOrderId(), customerId, new ArrayList<>(cart.getItems()), totalAmount, new Date());
         orderList.add(order);
         cart.getItems().clear();
 

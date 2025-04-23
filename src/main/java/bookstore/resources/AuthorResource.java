@@ -23,7 +23,10 @@ public class AuthorResource {
         if (author.getName() == null || author.getName().isEmpty()) {
             throw new InvalidInputException("Author name is required");
         }
-        author.setId(DataStore.getNextId());
+        if (authorList.stream().anyMatch(a -> a.getName().equalsIgnoreCase(author.getName()))) {
+            throw new InvalidInputException("Author with name " + author.getName() + " already exists");
+        }
+        author.setId(DataStore.getNextAuthorId());
         authorList.add(author);
         return Response.status(Response.Status.CREATED).entity(author).build();
     }
@@ -45,12 +48,16 @@ public class AuthorResource {
 
     @PUT
     @Path("/{id}")
-    public Response updateAuthor(@PathParam("id") int id, Authors updatedAuthor) {
+    public Response updateAuthor(@PathParam("id") int id, Authors updatedAuthor) throws InvalidInputException {
         Authors author = authorList.stream()
                 .filter(a -> a.getId() == id)
                 .findFirst()
                 .orElseThrow(() -> new AuthorNotFoundException("Author with ID " + id + " not found"));
         if (updatedAuthor.getName() != null && !updatedAuthor.getName().isEmpty()) {
+            if (!updatedAuthor.getName().equalsIgnoreCase(author.getName()) &&
+                    authorList.stream().anyMatch(a -> a.getName().equalsIgnoreCase(updatedAuthor.getName()))) {
+                throw new InvalidInputException("Author with name " + updatedAuthor.getName() + " already exists");
+            }
             author.setName(updatedAuthor.getName());
         }
         author.setBiography(updatedAuthor.getBiography());
@@ -59,11 +66,14 @@ public class AuthorResource {
 
     @DELETE
     @Path("/{id}")
-    public Response deleteAuthor(@PathParam("id") int id) {
+    public Response deleteAuthor(@PathParam("id") int id) throws InvalidInputException {
         Authors author = authorList.stream()
                 .filter(a -> a.getId() == id)
                 .findFirst()
                 .orElseThrow(() -> new AuthorNotFoundException("Author with ID " + id + " not found"));
+        if (bookList.stream().anyMatch(b -> b.getAuthorId() == id)) {
+            throw new InvalidInputException("Cannot delete author with associated books");
+        }
         authorList.remove(author);
         return Response.noContent().build();
     }

@@ -3,19 +3,17 @@ package bookstore.resources;
 import bookstore.exceptions.CustomerNotFoundException;
 import bookstore.exceptions.InvalidInputException;
 import bookstore.models.Customers;
+import bookstore.service.DataStore;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Path("/customers")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CustomerResource {
-    private static List<Customers> customerList = new ArrayList<>();
-    private static int currentId = 1;
+    private static List<Customers> customerList = DataStore.getCustomerList();
 
     @POST
     public Response addCustomer(Customers customer) throws InvalidInputException {
@@ -24,10 +22,10 @@ public class CustomerResource {
                 customer.getPassword() == null || customer.getPassword().isEmpty()) {
             throw new InvalidInputException("Name, email, and password are required");
         }
-        if (customerList.stream().anyMatch(c -> c.getEmail().equals(customer.getEmail()))) {
+        if (customerList.stream().anyMatch(c -> c.getEmail().equalsIgnoreCase(customer.getEmail()))) {
             throw new InvalidInputException("Email already registered");
         }
-        customer.setId(currentId++);
+        customer.setId(DataStore.getNextCustomerId());
         customerList.add(customer);
         return Response.status(Response.Status.CREATED).entity(customer).build();
     }
@@ -36,6 +34,7 @@ public class CustomerResource {
     public Response getAllCustomers() {
         return Response.ok(customerList).build();
     }
+
     @GET
     @Path("/{id}")
     public Response getCustomerById(@PathParam("id") int id) {
@@ -45,9 +44,10 @@ public class CustomerResource {
                 .orElseThrow(() -> new CustomerNotFoundException("Customer with ID " + id + " not found"));
         return Response.ok(customer).build();
     }
+
     @PUT
     @Path("/{id}")
-    public Response updateCustomer(@PathParam("id") int id, Customers updatedCustomer) {
+    public Response updateCustomer(@PathParam("id") int id, Customers updatedCustomer) throws InvalidInputException {
         Customers customer = customerList.stream()
                 .filter(c -> c.getId() == id)
                 .findFirst()
@@ -56,6 +56,10 @@ public class CustomerResource {
             customer.setName(updatedCustomer.getName());
         }
         if (updatedCustomer.getEmail() != null && !updatedCustomer.getEmail().isEmpty()) {
+            if (!updatedCustomer.getEmail().equalsIgnoreCase(customer.getEmail()) &&
+                    customerList.stream().anyMatch(c -> c.getEmail().equalsIgnoreCase(updatedCustomer.getEmail()))) {
+                throw new InvalidInputException("Email " + updatedCustomer.getEmail() + " already registered");
+            }
             customer.setEmail(updatedCustomer.getEmail());
         }
         if (updatedCustomer.getPassword() != null && !updatedCustomer.getPassword().isEmpty()) {
@@ -63,6 +67,7 @@ public class CustomerResource {
         }
         return Response.ok(customer).build();
     }
+
     @DELETE
     @Path("/{id}")
     public Response deleteCustomer(@PathParam("id") int id) {
