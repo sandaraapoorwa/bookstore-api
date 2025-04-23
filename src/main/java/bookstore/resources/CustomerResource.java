@@ -36,7 +36,6 @@ public class CustomerResource {
     public Response getAllCustomers() {
         return Response.ok(customerList).build();
     }
-
     @GET
     @Path("/{id}")
     public Response getCustomerById(@PathParam("id") int id) {
@@ -46,7 +45,6 @@ public class CustomerResource {
                 .orElseThrow(() -> new CustomerNotFoundException("Customer with ID " + id + " not found"));
         return Response.ok(customer).build();
     }
-
     @PUT
     @Path("/{id}")
     public Response updateCustomer(@PathParam("id") int id, Customers updatedCustomer) {
@@ -65,7 +63,6 @@ public class CustomerResource {
         }
         return Response.ok(customer).build();
     }
-
     @DELETE
     @Path("/{id}")
     public Response deleteCustomer(@PathParam("id") int id) {

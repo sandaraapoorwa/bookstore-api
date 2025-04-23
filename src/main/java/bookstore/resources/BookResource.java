@@ -3,23 +3,17 @@ package bookstore.resources;
 import bookstore.exceptions.BookNotFoundException;
 import bookstore.exceptions.InvalidInputException;
 import bookstore.models.Books;
+import bookstore.service.DataStore;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.List;
 
 @Path("/books")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class BookResource {
-    private static List<Books> bookList = new ArrayList<>();
-    private static int currentId = 1;
-
-    static {
-        bookList.add(new Books(currentId++, "The Alchemist", 1, "9780061122415", 1988, 9.99, 20));
-        bookList.add(new Books(currentId++, "1984", 2, "9780451524935", 1949, 8.99, 15));
-    }
+    private static final List<Books> bookList = DataStore.getBookList();
 
     @POST
     public Response addBook(Books book) throws InvalidInputException {
@@ -30,7 +24,10 @@ public class BookResource {
         if (book.getPrice() < 0 || book.getStockQuantity() < 0) {
             throw new InvalidInputException("Price and stock quantity must be non-negative");
         }
-        book.setId(currentId++);
+        if (DataStore.getAuthorList().stream().noneMatch(a -> a.getId() == book.getAuthorId())) {
+            throw new InvalidInputException("Author with ID " + book.getAuthorId() + " does not exist");
+        }
+        book.setId(DataStore.getNextId());
         bookList.add(book);
         return Response.status(Response.Status.CREATED).entity(book).build();
     }
@@ -52,7 +49,7 @@ public class BookResource {
 
     @PUT
     @Path("/{id}")
-    public Response updateBook(@PathParam("id") int id, Books updatedBook) {
+    public Response updateBook(@PathParam("id") int id, Books updatedBook) throws InvalidInputException {
         Books book = bookList.stream()
                 .filter(b -> b.getId() == id)
                 .findFirst()
@@ -62,6 +59,9 @@ public class BookResource {
         }
         if (updatedBook.getIsbn() != null && !updatedBook.getIsbn().isEmpty()) {
             book.setIsbn(updatedBook.getIsbn());
+        }
+        if (updatedBook.getAuthorId() > 0 && DataStore.getAuthorList().stream().noneMatch(a -> a.getId() == updatedBook.getAuthorId())) {
+            throw new InvalidInputException("Author with ID " + updatedBook.getAuthorId() + " does not exist");
         }
         book.setAuthorId(updatedBook.getAuthorId());
         book.setPublicationYear(updatedBook.getPublicationYear());
